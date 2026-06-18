@@ -1,0 +1,47 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Helper: is user signed in
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Helper: does the user match the path's userId
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Helper: is the user an admin in Firestore
+    function isAdmin() {
+      return isSignedIn() &&
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // ── User profile pictures ──────────────────────────────────────────────────
+    // Users can read/write their own profile image
+    // Admins can read/write any profile image
+    match /users/{userId}/{allPaths=**} {
+      allow read: if isSignedIn();
+      allow write: if isOwner(userId) || isAdmin();
+    }
+
+    // ── Menu and Categories images ─────────────────────────────────────────────
+    // Anyone signed in can read (view) food/category images
+    // Only admins can upload, edit, or delete them
+    match /menus/{allPaths=**} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /categories/{allPaths=**} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Default fallback rule (secure by default)
+    match /{allPaths=**} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

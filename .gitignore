@@ -1,0 +1,87 @@
+# Dart/Flutter
+.dart_tool/
+.flutter/
+.packages
+*.packages
+pubspec.lock
+*.iml
+.idea/
+.gradle/
+.android/
+android/local.properties
+
+# iOS/macOS
+ios/**/*.mode1v3
+ios/**/*.mode2v3
+ios/**/*.moved-aside
+ios/**/*.pbxuser
+ios/**/*.perspectivev3
+ios/**/*sync/
+ios/**/.sconsign.dblite
+ios/**/.tags*
+ios/**/.vscode/
+ios/.dart_tool/
+ios/.flutter/
+ios/Flutter/Flutter.podspec
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.xcframework
+ios/Flutter/flutter_export_environment.sh
+ios/ServiceDefinitions.json
+ios/Runner/GeneratedPluginRegistrant.*
+
+# macOS
+macos/Flutter/GeneratedPluginRegistrant.swift
+
+# Web
+web/plugins.js
+web/app.js
+
+# Misc
+.DS_Store
+Thumbs.db
+*.log
+*.swp
+*.swo
+*~
+.env
+.env.local
+.env.*.local
+
+# Coverage
+coverage/
+lcov.info
+
+# Build output
+/build/
+/bin/
+/out/
+*.o
+*.so
+*.dylib
+*.exe
+*.dll
+*.lib
+*.a
+
+# IDEs
+.vscode/
+.idea/
+*.iws
+*.ipr
+*.iml
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Generated files
+*.g.dart
+*.config.dart
+*.freezed.dart

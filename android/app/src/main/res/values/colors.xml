@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- SmartCanteen primary purple — used for FCM notification icon tint -->
+    <color name="ic_launcher_background">#7C3AED</color>
+    <color name="notification_color">#7C3AED</color>
+</resources>

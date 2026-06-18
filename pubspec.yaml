@@ -1,0 +1,76 @@
+name: smartcanteen_app
+description: "SmartCanteen - Food Ordering & Recommendation System for Campus Life"
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  provider: ^6.0.0
+  
+  # Navigation
+  go_router: ^17.3.0
+  
+  # HTTP Client
+  http: ^1.1.0
+  
+  # JSON Serialization
+  json_serializable: ^6.7.0
+  
+  # Local Storage
+  shared_preferences: ^2.2.2
+  
+  # Image Loading
+  cached_network_image: ^3.3.0
+  
+  # Icons & UI
+  flutter_svg: ^2.0.0
+  
+  # QR Code
+  qr_flutter: ^4.0.0
+  
+  # Firebase (optional)
+  firebase_core: ^4.10.0
+  firebase_auth: ^6.5.2
+  cloud_firestore: ^6.5.0
+  firebase_messaging: ^16.3.0
+  
+  # Notifications
+  awesome_notifications: ^0.11.0
+  
+  # Date & Time
+  intl: ^0.20.2
+  
+  # Connectivity
+  connectivity_plus: ^7.1.1
+  
+  # Loading & Shimmer
+  shimmer: ^3.0.0
+  
+  # Charts
+  fl_chart: ^1.2.0
+  
+  # PDF Generation
+  pdf: ^3.10.0
+  printing: ^5.11.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+  build_runner: ^2.4.6
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/

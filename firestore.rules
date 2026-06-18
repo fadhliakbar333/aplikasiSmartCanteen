@@ -1,0 +1,141 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper functions ──────────────────────────────────────────────────────
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Check role stored in user document (cached from Firestore)
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // ── Users collection ──────────────────────────────────────────────────────
+    // Users can read/update their own document.
+    // Admin can read all user documents (for sending notifications etc.)
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isSignedIn() && request.auth.uid == userId && request.resource.data.role == 'user';
+      allow update: if isAdmin() || (
+        isOwner(userId) && 
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role'])
+      );
+      allow delete: if isAdmin();
+    }
+
+    // ── Menus collection ──────────────────────────────────────────────────────
+    // Anyone signed-in can read menus.
+    // Only admin can write menus.
+
+    match /menus/{menuId} {
+      allow read: if isSignedIn();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || (
+        isSignedIn() && 
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rating', 'ratingCount'])
+      );
+    }
+
+    // ── Categories collection ─────────────────────────────────────────────────
+    match /categories/{catId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // ── Orders collection ─────────────────────────────────────────────────────
+    // Users can create their own orders and read/cancel their own orders.
+    // Admin can read and update ALL orders (status changes).
+
+    match /orders/{orderId} {
+      allow read:   if isSignedIn() && (
+                      resource.data.userId == request.auth.uid || isAdmin()
+                    );
+      allow create: if isSignedIn() &&
+                      request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin() ||
+                    (
+                      isOwner(resource.data.userId) &&
+                      request.resource.data.status == 'cancelled' &&
+                      resource.data.status == 'pending'
+                    );
+      allow delete: if isAdmin();
+    }
+
+    // ── Carts collection ──────────────────────────────────────────────────────
+    // Users can only read and write their own cart.
+
+    match /carts/{cartId} {
+      allow read, update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+    }
+
+    // ── Chats collection ──────────────────────────────────────────────────────
+    // Chat document: user can read/write their own chat thread.
+    // Admin can read/write all chat threads.
+
+    match /chats/{chatId} {
+      allow read, write: if isAdmin() ||
+                           (isSignedIn() && chatId == ('chat_' + request.auth.uid));
+
+      // Messages subcollection
+      match /messages/{messageId} {
+        allow read: if isAdmin() ||
+                       (isSignedIn() && (chatId == ('chat_' + request.auth.uid) || get(/databases/$(database)/documents/chats/$(chatId)).data.userId == request.auth.uid));
+        allow create: if isAdmin() ||
+                        (isSignedIn() && request.resource.data.senderId == request.auth.uid);
+        allow update: if isAdmin();
+        allow delete: if isAdmin();
+      }
+    }
+
+    // ── Notifications collection ──────────────────────────────────────────────
+    // Each user has a document; messages subcollection is read-only for the owner.
+    // Only admin (or server) can create notification messages.
+
+    match /notifications/{userId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+
+      match /messages/{messageId} {
+        allow read:   if isOwner(userId);
+        allow create: if isAdmin();
+        allow update: if isOwner(userId);   // mark as read
+        allow delete: if isOwner(userId) || isAdmin();
+      }
+    }
+
+    // ── Ratings collection ────────────────────────────────────────────────────
+    // Anyone signed-in can read ratings.
+    // Users can create/update only their own ratings.
+
+    match /ratings/{ratingId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() &&
+                      request.resource.data.userId == request.auth.uid;
+      allow update: if isSignedIn() &&
+                      resource.data.userId == request.auth.uid;
+      allow delete: if isAdmin();
+    }
+
+    // ── Settings collection ───────────────────────────────────────────────────
+    match /settings/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // ── Broadcasts collection ─────────────────────────────────────────────────
+    match /broadcasts/{broadcastId} {
+      allow read, write: if isAdmin();
+    }
+
+  }
+}
